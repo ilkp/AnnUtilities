@@ -1,6 +1,9 @@
 #pragma once
-struct InputData
+namespace AnnUtilities
 {
-	float* _label;
-	float* _input;
-};
+	struct InputData
+	{
+		float* _label;
+		float* _input;
+	};
+}

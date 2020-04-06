@@ -1,18 +1,19 @@
 #include "Network.h"
+#include "Layer.h"
+#include "InputData.h"
 
 
-
-Network::Network()
+AnnUtilities::Network::Network()
 {
 }
 
 
-Network::~Network()
+AnnUtilities::Network::~Network()
 {
 	Clean();
 }
 
-void Network::Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers,
+void AnnUtilities::Network::Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers,
 	float(*activationH)(float), float(*activationO)(float), float(*derivativeH)(float), float(*derivativeO)(float))
 {
 	_inputLayer = new Layer(nullptr, inputSize, nullptr, nullptr);
@@ -27,7 +28,7 @@ void Network::Init(const int inputSize, const int hiddenSize, const int outputSi
 	lastLayer->_nextLayer = _outputLayer;
 }
 
-void Network::Epoch(const InputData* const inputData, const int inputSize, const float learningRate)
+void AnnUtilities::Network::Epoch(const InputData* const inputData, const int inputSize, const float learningRate)
 {
 	Layer* l;
 	for (int i = 0; i < inputSize; ++i)
@@ -44,14 +45,14 @@ void Network::Epoch(const InputData* const inputData, const int inputSize, const
 	}
 }
 
-float* Network::Test(const float* const inputData)
+float* AnnUtilities::Network::Test(const float* const inputData)
 {
 	_inputLayer->setOutputs(inputData);
 	propagateForward();
 	return _outputLayer->getOutput();
 }
 
-void Network::propagateForward()
+void AnnUtilities::Network::propagateForward()
 {
 	Layer* l = _inputLayer->_nextLayer;
 	while (l != nullptr)
@@ -61,7 +62,7 @@ void Network::propagateForward()
 	}
 }
 
-void Network::propagateBackward(const float* const labels)
+void AnnUtilities::Network::propagateBackward(const float* const labels)
 {
 	Layer* l = _outputLayer->_prevLayer;
 	for (int i = 0; i < _outputLayer->_layerSize; i++)
@@ -78,7 +79,7 @@ void Network::propagateBackward(const float* const labels)
 	}
 }
 
-void Network::Clean()
+void AnnUtilities::Network::Clean()
 {
 	if (!_outputLayer)
 	{
@@ -89,6 +90,7 @@ void Network::Clean()
 	while (l->_prevLayer != nullptr)
 	{
 		delete(l->_nextLayer);
+		l = l->_prevLayer;
 	}
 	delete(l);
 }

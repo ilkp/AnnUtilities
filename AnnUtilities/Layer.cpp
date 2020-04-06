@@ -1,7 +1,7 @@
 #include <random>
 #include "Layer.h"
 
-Layer::Layer(Layer* previousLayer, int layerSize, float(*activation)(float), float(*derivative)(float))
+AnnUtilities::Layer::Layer(Layer* previousLayer, int layerSize, float(*activation)(float), float(*derivative)(float))
 	: _prevLayer(previousLayer), _layerSize(layerSize), _activation(activation), _derivative(derivative)
 {
 	_outputs = new float[layerSize]();
@@ -27,7 +27,7 @@ Layer::Layer(Layer* previousLayer, int layerSize, float(*activation)(float), flo
 	}
 }
 
-Layer::~Layer()
+AnnUtilities::Layer::~Layer()
 {
 	delete[](_outputs);
 	delete[](_error);
@@ -38,7 +38,7 @@ Layer::~Layer()
 }
 
 // Calculates output values for each node
-void Layer::propagationForward()
+void AnnUtilities::Layer::propagationForward()
 {
 	for (int i = 0; i < _layerSize; ++i)
 	{
@@ -53,7 +53,7 @@ void Layer::propagationForward()
 }
 
 // Calculates error value for each node
-void Layer::propagationBackward()
+void AnnUtilities::Layer::propagationBackward()
 {
 	for (int i = 0; i < _layerSize; ++i)
 	{
@@ -72,7 +72,7 @@ void Layer::propagationBackward()
 	}
 }
 
-void Layer::calculateDelta()
+void AnnUtilities::Layer::calculateDelta()
 {
 	for (int i = 0; i < _layerSize; ++i)
 	{
@@ -84,7 +84,7 @@ void Layer::calculateDelta()
 	}
 }
 
-void Layer::update(const float learningRate, const int epochs)
+void AnnUtilities::Layer::update(const float learningRate, const int epochs)
 {
 	for (int i = 0; i < _layerSize; ++i)
 	{
