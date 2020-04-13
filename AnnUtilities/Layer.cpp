@@ -1,8 +1,8 @@
 #include <random>
 #include "Layer.h"
 
-AnnUtilities::Layer::Layer(Layer* previousLayer, int layerSize, float(*activation)(float), float(*derivative)(float))
-	: _prevLayer(previousLayer), _layerSize(layerSize), _activation(activation), _derivative(derivative)
+AnnUtilities::Layer::Layer(Layer* previousLayer, int layerSize, float(*activationFunction)(float), float(*derivativeFunction)(float))
+	: _prevLayer(previousLayer), _layerSize(layerSize), _activationFunction(activationFunction), _derivativeFunction(derivativeFunction)
 {
 	_outputs = new float[layerSize]();
 
@@ -48,7 +48,7 @@ void AnnUtilities::Layer::propagationForward()
 			_outputs[i] += _weights[i * _prevLayer->_layerSize + j] * _prevLayer->_outputs[j];
 		}
 		_outputs[i] += _biases[i];
-		_outputs[i] = _activation(_outputs[i]);
+		_outputs[i] = _activationFunction(_outputs[i]);
 	}
 }
 
@@ -68,7 +68,7 @@ void AnnUtilities::Layer::propagationBackward()
 	}
 	for (int i = 0; i < _layerSize; ++i)
 	{
-		_error[i] = _derivative(_outputs[i]) * _error[i];
+		_error[i] = _derivativeFunction(_outputs[i]) * _error[i];
 	}
 }
 

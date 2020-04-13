@@ -23,6 +23,7 @@
     <ClCompile Include="Network.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Functions.h" />
     <ClInclude Include="InputData.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="Network.h" />

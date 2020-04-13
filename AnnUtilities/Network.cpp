@@ -14,17 +14,17 @@ AnnUtilities::Network::~Network()
 }
 
 void AnnUtilities::Network::Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers,
-	float(*activationH)(float), float(*activationO)(float), float(*derivativeH)(float), float(*derivativeO)(float))
+	float(*activationFuncHiddenL)(float), float(*activationFuncOoutputL)(float), float(*derivativeFuncHiddenL)(float), float(*derivativeFuncOutputL)(float))
 {
 	_inputLayer = new Layer(nullptr, inputSize, nullptr, nullptr);
 	Layer* lastLayer = _inputLayer;
 	for (int i = 0; i < hiddenLayers; i++)
 	{
-		Layer* hiddenLayer = new Layer(lastLayer, hiddenSize, activationH, derivativeH);
+		Layer* hiddenLayer = new Layer(lastLayer, hiddenSize, activationFuncHiddenL, derivativeFuncHiddenL);
 		lastLayer->_nextLayer = hiddenLayer;
 		lastLayer = hiddenLayer;
 	}
-	_outputLayer = new Layer(lastLayer, outputSize, activationO, derivativeO);
+	_outputLayer = new Layer(lastLayer, outputSize, activationFuncOoutputL, derivativeFuncOutputL);
 	lastLayer->_nextLayer = _outputLayer;
 }
 

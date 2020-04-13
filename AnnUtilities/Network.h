@@ -19,7 +19,7 @@ namespace AnnUtilities
 		Network();
 		~Network();
 		void Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers,
-			float(*activationH)(float), float(*activationO)(float), float(*derivativeH)(float), float(*derivativeO)(float));
+			float(*activationFuncHiddenL)(float), float(*activationFuncOutputL)(float), float(*derivativeFuncHiddenL)(float), float(*derivativeFuncOutputL)(float));
 		void Epoch(const InputData* const inputData, const int inputSize, const float learningRate);
 		float* Test(const float* const inputData);
 		void Clean();
