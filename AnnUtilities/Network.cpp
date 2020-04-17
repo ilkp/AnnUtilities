@@ -14,7 +14,7 @@ AnnUtilities::Network::~Network()
 }
 
 void AnnUtilities::Network::Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers,
-	float(*activationFuncHiddenL)(float), float(*activationFuncOoutputL)(float), float(*derivativeFuncHiddenL)(float), float(*derivativeFuncOutputL)(float))
+	float(*activationFuncHiddenL)(float), float(*derivativeFuncHiddenL)(float), float(*activationFuncOutputL)(float), float(*derivativeFuncOutputL)(float))
 {
 	_inputLayer = new Layer(nullptr, inputSize, nullptr, nullptr);
 	Layer* lastLayer = _inputLayer;
@@ -24,7 +24,7 @@ void AnnUtilities::Network::Init(const int inputSize, const int hiddenSize, cons
 		lastLayer->_nextLayer = hiddenLayer;
 		lastLayer = hiddenLayer;
 	}
-	_outputLayer = new Layer(lastLayer, outputSize, activationFuncOoutputL, derivativeFuncOutputL);
+	_outputLayer = new Layer(lastLayer, outputSize, activationFuncOutputL, derivativeFuncOutputL);
 	lastLayer->_nextLayer = _outputLayer;
 }
 
@@ -75,6 +75,16 @@ void AnnUtilities::Network::propagateBackward(const float* const labels)
 	{
 		l->propagationBackward();
 		l->calculateDelta();
+		l = l->_prevLayer;
+	}
+}
+
+void AnnUtilities::Network::update(const int batchSize, const float learningRate)
+{
+	Layer* l = _outputLayer;
+	while (l->_prevLayer != nullptr)
+	{
+		l->update(learningRate, batchSize);
 		l = l->_prevLayer;
 	}
 }
