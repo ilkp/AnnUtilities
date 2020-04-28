@@ -16,9 +16,9 @@ namespace AnnUtilities
 
 	public:
 		int _layerSize;
-		float* _outputs = nullptr;
 		Layer* _prevLayer = nullptr;
 		Layer* _nextLayer = nullptr;
+		float* _outputs = nullptr;
 		float* _biases = nullptr;
 		float* _weights = nullptr;
 		Layer(Layer* previousLayer, int layerSize, AnnUtilities::ACTFUNC actfunc);

@@ -1,20 +1,20 @@
 
-#include "Network.h"
+#include "ANNetwork.h"
 #include "Layer.h"
 #include "InputData.h"
 
 
-AnnUtilities::Network::Network()
+AnnUtilities::ANNetwork::ANNetwork()
 {
 }
 
 
-AnnUtilities::Network::~Network()
+AnnUtilities::ANNetwork::~ANNetwork()
 {
 	Clean();
 }
 
-void AnnUtilities::Network::Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers, AnnUtilities::ACTFUNC actfuncHidden, AnnUtilities::ACTFUNC actfuncOutput)
+void AnnUtilities::ANNetwork::Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers, AnnUtilities::ACTFUNC actfuncHidden, AnnUtilities::ACTFUNC actfuncOutput)
 {
 	_inputLayer = new Layer(nullptr, inputSize, actfuncHidden);
 	Layer* lastLayer = _inputLayer;
@@ -28,7 +28,7 @@ void AnnUtilities::Network::Init(const int inputSize, const int hiddenSize, cons
 	lastLayer->_nextLayer = _outputLayer;
 }
 
-void AnnUtilities::Network::Epoch(const InputData* const inputData, const int inputSize, const float learningRate)
+void AnnUtilities::ANNetwork::Epoch(const InputData* const inputData, const int inputSize, const float learningRate)
 {
 	Layer* l;
 	for (int i = 0; i < inputSize; ++i)
@@ -45,14 +45,14 @@ void AnnUtilities::Network::Epoch(const InputData* const inputData, const int in
 	}
 }
 
-float* AnnUtilities::Network::Test(const float* const inputData)
+float* AnnUtilities::ANNetwork::Test(const float* const inputData)
 {
 	_inputLayer->setOutputs(inputData);
 	propagateForward();
 	return _outputLayer->getOutput();
 }
 
-void AnnUtilities::Network::propagateForward()
+void AnnUtilities::ANNetwork::propagateForward()
 {
 	Layer* l = _inputLayer->_nextLayer;
 	while (l != nullptr)
@@ -62,7 +62,7 @@ void AnnUtilities::Network::propagateForward()
 	}
 }
 
-void AnnUtilities::Network::propagateBackward(const float* const labels)
+void AnnUtilities::ANNetwork::propagateBackward(const float* const labels)
 {
 	Layer* l = _outputLayer;
 	l->propagateBackward(labels);
@@ -75,7 +75,7 @@ void AnnUtilities::Network::propagateBackward(const float* const labels)
 	}
 }
 
-void AnnUtilities::Network::update(const int batchSize, const float learningRate)
+void AnnUtilities::ANNetwork::update(const int batchSize, const float learningRate)
 {
 	Layer* l = _outputLayer;
 	while (l->_prevLayer != nullptr)
@@ -85,7 +85,7 @@ void AnnUtilities::Network::update(const int batchSize, const float learningRate
 	}
 }
 
-void AnnUtilities::Network::Clean()
+void AnnUtilities::ANNetwork::Clean()
 {
 	if (!_outputLayer)
 	{

@@ -7,15 +7,15 @@ namespace AnnUtilities
 	class Layer;
 	struct InputData;
 
-	class Network
+	class ANNetwork
 	{
 	private:
 
 	public:
 		Layer* _inputLayer = nullptr;
 		Layer* _outputLayer = nullptr;
-		Network();
-		~Network();
+		ANNetwork();
+		~ANNetwork();
 		void propagateForward();
 		void propagateBackward(const float* const labels);
 		void Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers, AnnUtilities::ACTFUNC actfuncHidden, AnnUtilities::ACTFUNC actfuncOutput);

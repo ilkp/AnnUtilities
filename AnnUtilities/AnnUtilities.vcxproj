@@ -21,13 +21,13 @@
   <ItemGroup>
     <ClCompile Include="Functions.cpp" />
     <ClCompile Include="Layer.cpp" />
-    <ClCompile Include="Network.cpp" />
+    <ClCompile Include="ANNetwork.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Functions.h" />
     <ClInclude Include="InputData.h" />
     <ClInclude Include="Layer.h" />
-    <ClInclude Include="Network.h" />
+    <ClInclude Include="ANNetwork.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
