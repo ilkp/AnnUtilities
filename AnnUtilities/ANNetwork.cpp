@@ -14,17 +14,17 @@ AnnUtilities::ANNetwork::~ANNetwork()
 	Clean();
 }
 
-void AnnUtilities::ANNetwork::Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers, AnnUtilities::ACTFUNC actfuncHidden, AnnUtilities::ACTFUNC actfuncOutput)
+void AnnUtilities::ANNetwork::Init()
 {
-	_inputLayer = new Layer(nullptr, inputSize, actfuncHidden);
+	_inputLayer = new Layer(nullptr, _settings._inputSize, _settings._hiddenActicationFunction);
 	Layer* lastLayer = _inputLayer;
-	for (int i = 0; i < hiddenLayers; i++)
+	for (int i = 0; i < _settings._numberOfHiddenLayers; i++)
 	{
-		Layer* hiddenLayer = new Layer(lastLayer, hiddenSize, actfuncHidden);
+		Layer* hiddenLayer = new Layer(lastLayer, _settings._hiddenSize, _settings._hiddenActicationFunction);
 		lastLayer->_nextLayer = hiddenLayer;
 		lastLayer = hiddenLayer;
 	}
-	_outputLayer = new Layer(lastLayer, outputSize, actfuncOutput);
+	_outputLayer = new Layer(lastLayer, _settings._outputSize, _settings._outputActicationFunction);
 	lastLayer->_nextLayer = _outputLayer;
 }
 
@@ -43,13 +43,6 @@ void AnnUtilities::ANNetwork::Epoch(const InputData* const inputData, const int 
 		l->update(learningRate, inputSize);
 		l = l->_prevLayer;
 	}
-}
-
-float* AnnUtilities::ANNetwork::Test(const float* const inputData)
-{
-	_inputLayer->setOutputs(inputData);
-	propagateForward();
-	return _outputLayer->getOutput();
 }
 
 void AnnUtilities::ANNetwork::propagateForward()

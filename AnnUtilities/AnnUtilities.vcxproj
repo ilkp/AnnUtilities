@@ -24,6 +24,7 @@
     <ClCompile Include="ANNetwork.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ANNSettings.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="InputData.h" />
     <ClInclude Include="Layer.h" />

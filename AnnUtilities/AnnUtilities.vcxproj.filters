@@ -38,5 +38,8 @@
     <ClInclude Include="ANNetwork.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ANNSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
