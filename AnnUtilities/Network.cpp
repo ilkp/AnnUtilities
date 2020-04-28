@@ -1,3 +1,4 @@
+
 #include "Network.h"
 #include "Layer.h"
 #include "InputData.h"
@@ -13,18 +14,17 @@ AnnUtilities::Network::~Network()
 	Clean();
 }
 
-void AnnUtilities::Network::Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers,
-	float(*activationFuncHiddenL)(float), float(*derivativeFuncHiddenL)(float), float(*activationFuncOutputL)(float), float(*derivativeFuncOutputL)(float))
+void AnnUtilities::Network::Init(const int inputSize, const int hiddenSize, const int outputSize, const int hiddenLayers, AnnUtilities::ACTFUNC actfuncHidden, AnnUtilities::ACTFUNC actfuncOutput)
 {
-	_inputLayer = new Layer(nullptr, inputSize, nullptr, nullptr);
+	_inputLayer = new Layer(nullptr, inputSize, actfuncHidden);
 	Layer* lastLayer = _inputLayer;
 	for (int i = 0; i < hiddenLayers; i++)
 	{
-		Layer* hiddenLayer = new Layer(lastLayer, hiddenSize, activationFuncHiddenL, derivativeFuncHiddenL);
+		Layer* hiddenLayer = new Layer(lastLayer, hiddenSize, actfuncHidden);
 		lastLayer->_nextLayer = hiddenLayer;
 		lastLayer = hiddenLayer;
 	}
-	_outputLayer = new Layer(lastLayer, outputSize, activationFuncOutputL, derivativeFuncOutputL);
+	_outputLayer = new Layer(lastLayer, outputSize, actfuncOutput);
 	lastLayer->_nextLayer = _outputLayer;
 }
 
@@ -57,24 +57,20 @@ void AnnUtilities::Network::propagateForward()
 	Layer* l = _inputLayer->_nextLayer;
 	while (l != nullptr)
 	{
-		l->propagationForward();
+		l->propagateForward();
 		l = l->_nextLayer;
 	}
 }
 
 void AnnUtilities::Network::propagateBackward(const float* const labels)
 {
-	Layer* l = _outputLayer->_prevLayer;
-	for (int i = 0; i < _outputLayer->_layerSize; i++)
-	{
-		_outputLayer->setError(i, labels[i]);
-	}
-	_outputLayer->calculateDelta();
+	Layer* l = _outputLayer;
+	l->propagateBackward(labels);
+	l = l->_prevLayer;
 
 	while (l->_prevLayer != nullptr)
 	{
-		l->propagationBackward();
-		l->calculateDelta();
+		l->propagateBackward();
 		l = l->_prevLayer;
 	}
 }

@@ -1,10 +1,16 @@
+
 #include <random>
 #include "Layer.h"
+#include "Functions.h"
 
-AnnUtilities::Layer::Layer(Layer* previousLayer, int layerSize, float(*activationFunction)(float), float(*derivativeFunction)(float))
-	: _prevLayer(previousLayer), _layerSize(layerSize), _activationFunction(activationFunction), _derivativeFunction(derivativeFunction)
+
+AnnUtilities::Layer::Layer(Layer* previousLayer, int layerSize, AnnUtilities::ACTFUNC actfunc) : _prevLayer(previousLayer), _layerSize(layerSize), _actfunc(actfunc)
 {
-	_outputs = new float[layerSize]();
+	_outputs = new float[layerSize];
+	for (int i = 0; i < layerSize; ++i)
+	{
+		_outputs[i] = 0.0f;
+	}
 
 	if (previousLayer != nullptr)
 	{
@@ -15,12 +21,12 @@ AnnUtilities::Layer::Layer(Layer* previousLayer, int layerSize, float(*activatio
 		_error = new float[layerSize];
 		for (int i = 0; i < layerSize; ++i)
 		{
-			_biases[i] = 1.5f * (float(rand()) / float(RAND_MAX)) - 0.75f;
+			_biases[i] = 2.0f * (float(rand()) / float(RAND_MAX)) - 1.0f;
 			_deltaBiases[i] = 0.0f;
 			_error[i] = 0.0f;
 			for (int j = 0; j < previousLayer->_layerSize; ++j)
 			{
-				_weights[i * _prevLayer->_layerSize + j] = 1.5f * (float(rand()) / float(RAND_MAX)) - 0.75f;
+				_weights[i * _prevLayer->_layerSize + j] = 2.0f * (float(rand()) / float(RAND_MAX)) - 1.0f;
 				_deltaWeights[i * _prevLayer->_layerSize + j] = 0.0f;
 			}
 		}
@@ -37,38 +43,126 @@ AnnUtilities::Layer::~Layer()
 	delete[](_deltaBiases);
 }
 
-// Calculates output values for each node
-void AnnUtilities::Layer::propagationForward()
+void AnnUtilities::Layer::propagateForward()
 {
-	for (int i = 0; i < _layerSize; ++i)
+	if (_actfunc == AnnUtilities::ACTFUNC::SIGMOID)
 	{
-		_outputs[i] = 0.0f;
-		for (int j = 0; j < _prevLayer->_layerSize; ++j)
+		for (int i = 0; i < _layerSize; ++i)
 		{
-			_outputs[i] += _weights[i * _prevLayer->_layerSize + j] * _prevLayer->_outputs[j];
+			_outputs[i] = 0.0f;
+			for (int j = 0; j < _prevLayer->_layerSize; ++j)
+			{
+				_outputs[i] += _weights[i * _prevLayer->_layerSize + j] * _prevLayer->_outputs[j];
+			}
+			_outputs[i] += _biases[i];
+			_outputs[i] = 1.0f / (1.0f + expf(-_outputs[i]));
 		}
-		_outputs[i] += _biases[i];
-		_outputs[i] = _activationFunction(_outputs[i]);
+	}
+	else if (_actfunc == AnnUtilities::ACTFUNC::RELU)
+	{
+		for (int i = 0; i < _layerSize; ++i)
+		{
+			_outputs[i] = 0.0f;
+			for (int j = 0; j < _prevLayer->_layerSize; ++j)
+			{
+				_outputs[i] += _weights[i * _prevLayer->_layerSize + j] * _prevLayer->_outputs[j];
+			}
+			_outputs[i] += _biases[i];
+			if (_outputs[i] < 0)
+			{
+				_outputs[i] = 0;
+			}
+		}
+	}
+	else if (_actfunc == AnnUtilities::ACTFUNC::LEAKY_RELU)
+	{
+		for (int i = 0; i < _layerSize; ++i)
+		{
+			_outputs[i] = 0.0f;
+			for (int j = 0; j < _prevLayer->_layerSize; ++j)
+			{
+				_outputs[i] += _weights[i * _prevLayer->_layerSize + j] * _prevLayer->_outputs[j];
+			}
+			_outputs[i] += _biases[i];
+			if (_outputs[i] < 0)
+			{
+				_outputs[i] = 0.01f * _outputs[i];
+			}
+		}
+	}
+	else if (_actfunc == AnnUtilities::ACTFUNC::TANH)
+	{
+		for (int i = 0; i < _layerSize; ++i)
+		{
+			_outputs[i] = 0.0f;
+			for (int j = 0; j < _prevLayer->_layerSize; ++j)
+			{
+				_outputs[i] += _weights[i * _prevLayer->_layerSize + j] * _prevLayer->_outputs[j];
+			}
+			_outputs[i] += _biases[i];
+			_outputs[i] = tanhf(_outputs[i]);
+		}
 	}
 }
 
-// Calculates error value for each node
-void AnnUtilities::Layer::propagationBackward()
+void AnnUtilities::Layer::propagateBackward()
+{
+	calculateError();
+	calculateDerivative();
+	calculateDelta();
+}
+
+void AnnUtilities::Layer::propagateBackward(const float* const label)
+{
+	for (int i = 0; i < _layerSize; ++i)
+	{
+		_error[i] = label[i] - _outputs[i];
+	}
+	calculateDerivative();
+	calculateDelta();
+}
+
+void AnnUtilities::Layer::calculateError()
 {
 	for (int i = 0; i < _layerSize; ++i)
 	{
 		_error[i] = 0.0f;
-	}
-	for (int i = 0; i < _nextLayer->_layerSize; ++i)
-	{
-		for (int j = 0; j < _layerSize; ++j)
+		for (int j = 0; j < _nextLayer->_layerSize; ++j)
 		{
-			_error[j] += _nextLayer->_error[i] * _nextLayer->_weights[i * _layerSize + j];
+			_error[i] += _nextLayer->_error[j] * _nextLayer->_weights[j * _layerSize + i];
 		}
 	}
-	for (int i = 0; i < _layerSize; ++i)
+}
+
+void AnnUtilities::Layer::calculateDerivative()
+{
+	if (_actfunc == AnnUtilities::ACTFUNC::SIGMOID)
 	{
-		_error[i] = _derivativeFunction(_outputs[i]) * _error[i];
+		for (int i = 0; i < _layerSize; ++i)
+		{
+			_error[i] = _error[i] * AnnUtilities::dSigmoid(_outputs[i]);
+		}
+	}
+	else if (_actfunc == AnnUtilities::ACTFUNC::RELU)
+	{
+		for (int i = 0; i < _layerSize; ++i)
+		{
+			_error[i] = _error[i] * AnnUtilities::dRelu(_outputs[i]);
+		}
+	}
+	else if (_actfunc == AnnUtilities::ACTFUNC::LEAKY_RELU)
+	{
+		for (int i = 0; i < _layerSize; ++i)
+		{
+			_error[i] = _error[i] * AnnUtilities::dLeakyRelu(_outputs[i]);
+		}
+	}
+	else if (_actfunc == AnnUtilities::ACTFUNC::TANH)
+	{
+		for (int i = 0; i < _layerSize; ++i)
+		{
+			_error[i] = _error[i] * AnnUtilities::dTanh(_outputs[i]);
+		}
 	}
 }
 
@@ -88,11 +182,11 @@ void AnnUtilities::Layer::update(const float learningRate, const int epochs)
 {
 	for (int i = 0; i < _layerSize; ++i)
 	{
-		_biases[i] -= learningRate * _deltaBiases[i] / epochs;
+		_biases[i] += learningRate * _deltaBiases[i] / epochs;
 		_deltaBiases[i] = 0.0f;
 		for (int j = 0; j < _prevLayer->_layerSize; ++j)
 		{
-			_weights[i * _prevLayer->_layerSize + j] -= learningRate * _deltaWeights[i * _prevLayer->_layerSize + j] / epochs;
+			_weights[i * _prevLayer->_layerSize + j] += learningRate * _deltaWeights[i * _prevLayer->_layerSize + j] / epochs;
 			_deltaWeights[i * _prevLayer->_layerSize + j] = 0.0f;
 		}
 	}
