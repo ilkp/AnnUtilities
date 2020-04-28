@@ -16,15 +16,15 @@ AnnUtilities::ANNetwork::~ANNetwork()
 
 void AnnUtilities::ANNetwork::Init()
 {
-	_inputLayer = new Layer(nullptr, _settings._inputSize, _settings._hiddenActicationFunction);
+	_inputLayer = new Layer(nullptr, _settings._inputSize, _settings._momentum, _settings._hiddenActicationFunction);
 	Layer* lastLayer = _inputLayer;
 	for (int i = 0; i < _settings._numberOfHiddenLayers; i++)
 	{
-		Layer* hiddenLayer = new Layer(lastLayer, _settings._hiddenSize, _settings._hiddenActicationFunction);
+		Layer* hiddenLayer = new Layer(lastLayer, _settings._hiddenSize, _settings._momentum, _settings._hiddenActicationFunction);
 		lastLayer->_nextLayer = hiddenLayer;
 		lastLayer = hiddenLayer;
 	}
-	_outputLayer = new Layer(lastLayer, _settings._outputSize, _settings._outputActicationFunction);
+	_outputLayer = new Layer(lastLayer, _settings._outputSize, _settings._momentum, _settings._outputActicationFunction);
 	lastLayer->_nextLayer = _outputLayer;
 }
 
@@ -68,12 +68,12 @@ void AnnUtilities::ANNetwork::propagateBackward(const float* const labels)
 	}
 }
 
-void AnnUtilities::ANNetwork::update(const int batchSize, const float learningRate)
+void AnnUtilities::ANNetwork::update(const int batchSize)
 {
 	Layer* l = _outputLayer;
 	while (l->_prevLayer != nullptr)
 	{
-		l->update(learningRate, batchSize);
+		l->update(_settings._learningRate, batchSize);
 		l = l->_prevLayer;
 	}
 }

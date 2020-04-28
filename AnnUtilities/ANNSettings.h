@@ -12,7 +12,7 @@ namespace AnnUtilities
 		int _hiddenSize = 1;
 		int _numberOfHiddenLayers = 1;
 		float _learningRate = 0.1f;
+		// momentum between 0.0f(no momentum, no space for momentum values are allocated) and 1.0f
 		float _momentum = 0.0f;
-		float _maxMomentum = 0.0f;
 	};
 }

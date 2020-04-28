@@ -21,7 +21,7 @@ namespace AnnUtilities
 		void propagateBackward(const float* const labels);
 		void Init();
 		void Epoch(const InputData* const inputData, const int inputSize, const float learningRate);
-		void update(const int batchSize, const float learningRate);
+		void update(const int batchSize);
 		void Clean();
 	};
 }

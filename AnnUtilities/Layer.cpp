@@ -4,7 +4,7 @@
 #include "Functions.h"
 
 
-AnnUtilities::Layer::Layer(Layer* previousLayer, int layerSize, AnnUtilities::ACTFUNC actfunc) : _prevLayer(previousLayer), _layerSize(layerSize), _actfunc(actfunc)
+AnnUtilities::Layer::Layer(Layer* previousLayer, int layerSize, float momentum, AnnUtilities::ACTFUNC actfunc) : _prevLayer(previousLayer), _layerSize(layerSize), _momentum(momentum), _actfunc(actfunc)
 {
 	_outputs = new float[layerSize];
 	for (int i = 0; i < layerSize; ++i)
@@ -14,20 +14,33 @@ AnnUtilities::Layer::Layer(Layer* previousLayer, int layerSize, AnnUtilities::AC
 
 	if (previousLayer != nullptr)
 	{
-		_deltaWeights = new float[layerSize * previousLayer->_layerSize];
 		_weights = new float[layerSize * previousLayer->_layerSize];
-		_deltaBiases = new float[layerSize];
+		_deltaWeights = new float[layerSize * previousLayer->_layerSize];
 		_biases = new float[layerSize];
+		_deltaBiases = new float[layerSize];
 		_error = new float[layerSize];
+		if (momentum > 0.0f)
+		{
+			_weightMomentum = new float[layerSize * previousLayer->_layerSize];
+			_biasMomentum = new float[layerSize];
+		}
 		for (int i = 0; i < layerSize; ++i)
 		{
 			_biases[i] = 2.0f * (float(rand()) / float(RAND_MAX)) - 1.0f;
 			_deltaBiases[i] = 0.0f;
+			if (momentum > 0.0f)
+			{
+				_biasMomentum[i] = 0.0f;
+			}
 			_error[i] = 0.0f;
 			for (int j = 0; j < previousLayer->_layerSize; ++j)
 			{
 				_weights[i * _prevLayer->_layerSize + j] = 2.0f * (float(rand()) / float(RAND_MAX)) - 1.0f;
 				_deltaWeights[i * _prevLayer->_layerSize + j] = 0.0f;
+				if (momentum > 0.0f)
+				{
+					_weightMomentum[i * _prevLayer->_layerSize + j] = 0.0f;
+				}
 			}
 		}
 	}
@@ -180,14 +193,32 @@ void AnnUtilities::Layer::calculateDelta()
 
 void AnnUtilities::Layer::update(const float learningRate, const int epochs)
 {
+	unsigned int node;
 	for (int i = 0; i < _layerSize; ++i)
 	{
-		_biases[i] += learningRate * _deltaBiases[i] / epochs;
+		if (_momentum > 0.0f)
+		{
+			_biases[i] += learningRate * _deltaBiases[i] / epochs + _biasMomentum[i];
+			_biasMomentum[i] = _momentum * _biasMomentum[i] + _momentum * _deltaBiases[i];
+		}
+		else
+		{
+			_biases[i] += learningRate * _deltaBiases[i] / epochs;
+		}
 		_deltaBiases[i] = 0.0f;
 		for (int j = 0; j < _prevLayer->_layerSize; ++j)
 		{
-			_weights[i * _prevLayer->_layerSize + j] += learningRate * _deltaWeights[i * _prevLayer->_layerSize + j] / epochs;
-			_deltaWeights[i * _prevLayer->_layerSize + j] = 0.0f;
+			node = i * _prevLayer->_layerSize + j;
+			if (_momentum > 0.0f)
+			{
+				_weights[node] += learningRate * _deltaWeights[node] / epochs + _weightMomentum[node];
+				_weightMomentum[node] = _momentum * _weightMomentum[node] + _momentum * _deltaWeights[node];
+			}
+			else
+			{
+				_weights[node] += learningRate * _deltaWeights[node] / epochs;
+			}
+			_deltaWeights[node] = 0.0f;
 		}
 	}
 }

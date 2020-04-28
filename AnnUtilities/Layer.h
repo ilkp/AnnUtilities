@@ -9,7 +9,10 @@ namespace AnnUtilities
 		AnnUtilities::ACTFUNC _actfunc;
 		float* _deltaWeights = nullptr;
 		float* _deltaBiases = nullptr;
+		float* _weightMomentum = nullptr;
+		float* _biasMomentum = nullptr;
 		float* _error = nullptr;
+		float _momentum = 0.0f;
 		void calculateError();
 		void calculateDerivative();
 		void calculateDelta();
@@ -21,7 +24,7 @@ namespace AnnUtilities
 		float* _outputs = nullptr;
 		float* _biases = nullptr;
 		float* _weights = nullptr;
-		Layer(Layer* previousLayer, int layerSize, AnnUtilities::ACTFUNC actfunc);
+		Layer(Layer* previousLayer, int layerSize, float momentum, AnnUtilities::ACTFUNC actfunc);
 		~Layer();
 
 		void propagateForward();
