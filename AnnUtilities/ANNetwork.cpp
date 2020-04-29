@@ -11,10 +11,21 @@ AnnUtilities::ANNetwork::ANNetwork()
 
 AnnUtilities::ANNetwork::~ANNetwork()
 {
-	Clean();
+	if (!_outputLayer)
+	{
+		return;
+	}
+
+	Layer* l = _outputLayer->_prevLayer;
+	while (l->_prevLayer != nullptr)
+	{
+		delete(l->_nextLayer);
+		l = l->_prevLayer;
+	}
+	delete(l);
 }
 
-void AnnUtilities::ANNetwork::Init()
+void AnnUtilities::ANNetwork::init()
 {
 	_inputLayer = new Layer(nullptr, _settings._inputSize, _settings._momentum, _settings._hiddenActicationFunction);
 	Layer* lastLayer = _inputLayer;
@@ -28,7 +39,7 @@ void AnnUtilities::ANNetwork::Init()
 	lastLayer->_nextLayer = _outputLayer;
 }
 
-void AnnUtilities::ANNetwork::Epoch(const InputData* const inputData, const int inputSize, const float learningRate)
+void AnnUtilities::ANNetwork::epoch(const InputData* const inputData, const int inputSize, const float learningRate)
 {
 	Layer* l;
 	for (int i = 0; i < inputSize; ++i)
@@ -76,20 +87,4 @@ void AnnUtilities::ANNetwork::update(const int batchSize)
 		l->update(_settings._learningRate, batchSize);
 		l = l->_prevLayer;
 	}
-}
-
-void AnnUtilities::ANNetwork::Clean()
-{
-	if (!_outputLayer)
-	{
-		return;
-	}
-
-	Layer* l = _outputLayer->_prevLayer;
-	while (l->_prevLayer != nullptr)
-	{
-		delete(l->_nextLayer);
-		l = l->_prevLayer;
-	}
-	delete(l);
 }

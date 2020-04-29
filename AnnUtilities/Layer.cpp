@@ -54,6 +54,11 @@ AnnUtilities::Layer::~Layer()
 	delete[](_deltaWeights);
 	delete[](_biases);
 	delete[](_deltaBiases);
+	if (_momentum > 0)
+	{
+		delete[](_biasMomentum);
+		delete[](_weightMomentum);
+	}
 }
 
 void AnnUtilities::Layer::propagateForward()

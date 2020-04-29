@@ -29,7 +29,7 @@ namespace AnnUtilities
 
 		void propagateForward();
 		void propagateBackward();
-		void propagateBackward(const float* const error);
+		void propagateBackward(const float* const label);
 		void update(const float learningRate, const int epochs);
 
 		void setNextLayer(Layer* nextLayer) { _nextLayer = nextLayer; }
