@@ -1,6 +1,6 @@
 # AnnUtilities
 
-Interface for basic artificial neural network operations.
+Interface for basic artificial neural network operations in C++.
 
 ### How to use:
 1. Set input layer's output
