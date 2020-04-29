@@ -1,4 +1,4 @@
-Interface for basic artificial neural network operations by Ilkka Pokkinen.
+# Interface for basic artificial neural network operations by Ilkka Pokkinen.
 
 How to use:
 1. Set input layer's output
