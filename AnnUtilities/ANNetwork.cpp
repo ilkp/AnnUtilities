@@ -27,15 +27,15 @@ AnnUtilities::ANNetwork::~ANNetwork()
 
 void AnnUtilities::ANNetwork::init()
 {
-	_inputLayer = new Layer(nullptr, _settings._inputSize, _settings._momentum, _settings._hiddenActicationFunction);
+	_inputLayer = new Layer(nullptr, _settings._inputSize, _settings._momentum, _settings._hiddenActivationFunction);
 	Layer* lastLayer = _inputLayer;
 	for (int i = 0; i < _settings._numberOfHiddenLayers; i++)
 	{
-		Layer* hiddenLayer = new Layer(lastLayer, _settings._hiddenSize, _settings._momentum, _settings._hiddenActicationFunction);
+		Layer* hiddenLayer = new Layer(lastLayer, _settings._hiddenSize, _settings._momentum, _settings._hiddenActivationFunction);
 		lastLayer->_nextLayer = hiddenLayer;
 		lastLayer = hiddenLayer;
 	}
-	_outputLayer = new Layer(lastLayer, _settings._outputSize, _settings._momentum, _settings._outputActicationFunction);
+	_outputLayer = new Layer(lastLayer, _settings._outputSize, _settings._momentum, _settings._outputActivationFunction);
 	lastLayer->_nextLayer = _outputLayer;
 }
 
